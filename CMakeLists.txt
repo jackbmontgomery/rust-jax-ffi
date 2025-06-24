@@ -21,7 +21,7 @@ FetchContent_MakeAvailable(xla)
 
 message(STATUS "XLA headers path: ${xla_SOURCE_DIR}")
 
-# ---------- Nanobind ----------
+# ---------- Setup nanobind ----------
 
 set(Python_EXECUTABLE "${CMAKE_SOURCE_DIR}/.venv/bin/python")
 set(ENV{VIRTUAL_ENV} "${CMAKE_SOURCE_DIR}/.venv")
@@ -79,6 +79,8 @@ add_custom_command(
         USES_TERMINAL
         COMMENT "Running cargo..."
 )
+
+# ---------- Create python package and stub ----------
 
 # Create the nanobind Python module
 nanobind_add_module(rust_jax_ffi src/ffi.cc ${RUST_BRIDGE_CPP})
