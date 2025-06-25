@@ -17,7 +17,7 @@ def test_rms_norm_vmap(rms_norm, rms_norm_ref):
     )
 
 
-def test_rms_norm_(rms_norm, rms_norm_fwd, rms_norm_bwd, rms_norm_ref):
+def test_rms_norm_vjp(rms_norm, rms_norm_fwd, rms_norm_bwd, rms_norm_ref):
     rms_norm = jax.custom_vjp(rms_norm, nondiff_argnums=(1,))
     rms_norm.defvjp(rms_norm_fwd, rms_norm_bwd)
 

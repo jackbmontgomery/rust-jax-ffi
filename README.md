@@ -15,10 +15,10 @@ This repo contains an adaption of the [JAX foreign function interface tutorial](
 git clone https://github.com/<GITHUB_USERNAME>/rust-jax-ffi.git
 ```
 2.  `cd rust-jax-ffi`
-3. `uv venv`
-4. `uv sync`
-5. `source .venv/bin/activate`
-6. `cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
+3. ```uv venv```
+4. ```source .venv/bin/activate```
+5. ```uv sync```
+6. ```cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON```
     (This will take a little while)
-7. `cmake --build build`
-8. `pytest`
+7. ```cmake --build build```
+8. ```uv run pytest```
