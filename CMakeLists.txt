@@ -85,12 +85,16 @@ add_custom_command(
 # Create the nanobind Python module
 nanobind_add_module(rust_jax_ffi src/ffi.cc ${RUST_BRIDGE_CPP})
 
+set_target_properties(rust_jax_ffi PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/src
+)
+
 # Create the .pyi stub file for the module
 nanobind_add_stub(
   rust_jax_ffi_stub
   MODULE rust_jax_ffi
-  OUTPUT rust_jax_ffi.pyi
-  PYTHON_PATH $<TARGET_FILE_DIR:rust_jax_ffi>
+  OUTPUT ${CMAKE_SOURCE_DIR}/src/rust_jax_ffi.pyi
+  PYTHON_PATH ${CMAKE_SOURCE_DIR}/src
   DEPENDS rust_jax_ffi
 )
 
