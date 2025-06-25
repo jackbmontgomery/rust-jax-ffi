@@ -4,6 +4,8 @@ import numpy as np
 import rust_jax_ffi
 
 jax.ffi.register_ffi_target("rms_norm", rust_jax_ffi.rms_norm(), platform="cpu")
+jax.ffi.register_ffi_target("rms_norm_fwd", rust_jax_ffi.rms_norm_fwd(), platform="cpu")
+jax.ffi.register_ffi_target("rms_norm_bwd", rust_jax_ffi.rms_norm_bwd(), platform="cpu")
 
 
 def rms_norm_ref(x, eps=1e-5):
@@ -40,8 +42,41 @@ def rms_norm(x, eps=1e-5):
     return call(x, eps=np.float32(eps))
 
 
-# Test that this gives the same result as our reference implementation
+def rms_norm_fwd(x, eps=1e-5):
+    y, res = jax.ffi.ffi_call(
+        "rms_norm_fwd",
+        (
+            jax.ShapeDtypeStruct(x.shape, x.dtype),
+            jax.ShapeDtypeStruct(x.shape[:-1], x.dtype),
+        ),
+        vmap_method="broadcast_all",
+    )(x, eps=np.float32(eps))
+    return y, (res, x)
+
+
+def rms_norm_bwd(eps, res, ct):
+    del eps
+    res, x = res
+    assert res.shape == ct.shape[:-1]
+    assert x.shape == ct.shape
+    return (
+        jax.ffi.ffi_call(
+            "rms_norm_bwd",
+            jax.ShapeDtypeStruct(ct.shape, ct.dtype),
+            vmap_method="broadcast_all",
+        )(res, x, ct),
+    )
+
+
 x = jnp.linspace(-0.5, 0.5, 32).reshape((8, 4))
-np.testing.assert_allclose(rms_norm(x), rms_norm_ref(x), rtol=1e-5)
+ct_y = jnp.ones_like(x)
+
+rms_norm = jax.custom_vjp(rms_norm, nondiff_argnums=(1,))
+rms_norm.defvjp(rms_norm_fwd, rms_norm_bwd)
+
+t_y = jnp.ones_like(x)
+np.testing.assert_allclose(
+    jax.vjp(rms_norm, x)[1](ct_y), jax.vjp(rms_norm_ref, x)[1](ct_y), rtol=1e-5
+)
 
 print("✅ Test passed! RMS norm FFI implementation is correct.")

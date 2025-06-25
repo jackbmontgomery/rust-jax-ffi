@@ -8,3 +8,9 @@ dependencies = [
     "jax>=0.6.2",
     "nanobind>=2.7.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "pytest>=8.4.1",
+]
